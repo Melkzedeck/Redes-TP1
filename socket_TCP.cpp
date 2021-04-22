@@ -146,14 +146,13 @@ void TSmultiple::wait_mode(){
 		max_sd = masterSock;
 		int activity, new_socket;
 		//add child sockets to set
-		std::cout << "here2" << std::endl;
-		for (unsigned int it; it<socks.size(); it++)
+		for (std::vector<std::pair<Adress, int>>::iterator it=socks.begin(); it!=socks.end(); it++)
 		{
-			FD_SET( socks[it].second , &readfds);
+			FD_SET( it->second , &readfds);
 				
 			//highest file descriptor number, need it for the select function
-			if(socks[it].second > max_sd)
-				max_sd = socks[it].second;
+			if(it->second > max_sd)
+				max_sd = it->second;
 		}
 	
 		//wait for an activity on one of the sockets , timeout is NULL ,
@@ -188,9 +187,7 @@ void TSmultiple::wait_mode(){
 				logexit("send");
 			}
 			std::cout << "Welcome message sent successfully" << std::endl;
-			continue;
 		}
-		std::cout << "here1" << std::endl;
 		//else its some IO operation on some other socket
 		for (std::vector<std::pair<Adress, int>>::iterator it=socks.begin(); it!=socks.end(); ++it)
 		{				
@@ -208,6 +205,7 @@ void TSmultiple::wait_mode(){
 					//Close the socket and mark as 0 in list for reuse
 					close( it->second );
 					socks.erase(it);
+					it--;
 				}
 					
 				//Echo back the message that came in
@@ -227,9 +225,11 @@ void TSmultiple::wait_mode(){
 }
 
 TSmultiple::~TSmultiple(){
+	std::cout<<"close the sockets of clients" << std::endl;
 	for (std::vector<std::pair<Adress, int>>::iterator it=socks.begin(); it!=socks.end(); ++it){
 		close(it->second);
 	}
+	std::cout<< "close the socket master" << std::endl;
 	close(masterSock);
 }
 

@@ -1,6 +1,9 @@
 #pragma once
 #include "Adress.h"
 
+/*-------- ATENCAO!! --------*/
+/*-------- Construcao da classe ainda em andamento --------*/
+
 struct Data{
 	void* ptr;
 	unsigned long int size;

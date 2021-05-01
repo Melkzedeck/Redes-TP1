@@ -17,13 +17,16 @@ void usage(int argc, char **argv) {
 
 #define BUFSZ 1024
 
+/*Exemplo de um programa cliente*/
+/*envio de mensagens simples*/
+
 int main(int argc, char **argv) {
 	
 	usage(argc, argv);
 	Adress server(argv[1], argv[2]);
 	Tclient sock(server);
 	cout<<"connected to " << server.str() << endl;
-	string msg("the first mensage");
+	string msg;
 	int num = sock>>msg;
 	cout << msg << endl;
 	cout << "mensagem>> ";

@@ -82,10 +82,15 @@ class TSmultiple{
 public:
 	//Construtor usando endereco
 	TSmultiple(Adress&);
-	/* estado de espera de abertura e fechamento 
-	de conexao e recebimento de mensagens. 
-	Fecha ao receber a mensagem KILL*/
-	void wait_mode();
+	//Espera que ocorra alguma atividade
+	int wait();
+	//Checa se houve alguma nova conexão
+	Adress check_newConection();
+	//Retorna a mensagem recebida de algum cliente
+	//Também verifica se houve desconexão
+	std::string msg();
+	
+	//void wait_mode();
 	//destrutor de objeto
 	~TSmultiple();
 };

@@ -29,7 +29,7 @@ class Adress {
 	socklen_t *addrlen_;
 	int family_;
 public:
-	//Construtor da classe usando a versão(char: '4'-(IPv4) ou '6'-(IPv6)) e a porta(string) como argumento
+	//Construtor da classe usando a versão(char: '4'-(IPv4) ou '6'-(IPv6))aux.family_ e a porta(string) como argumento
 	Adress(char v, std::string port_s);
 	//Construtor usando o endereco(string) e porta(string)
 	Adress(std::string addrstr, std::string port_s);
@@ -37,11 +37,14 @@ public:
 	Adress(struct sockaddr* addr);
 	//Construtor copia
 	Adress(const Adress&);
+	// Construtor padrao
+	Adress();
 	//----------- Funcoes GET -----------//
 	uint16_t port()const {return port_;};
 	const struct sockaddr* addr() const {return addr_;};
 	const socklen_t* addrlen() const {return addrlen_;};
 	//----------- Termino das funcoes GET -----------//
+	//retorna a familia do endereco (IPv4 ou IPv6)
 	int family() const {return family_;};
 	//retorna o endereco no formato string
 	std::string str() const;

@@ -134,17 +134,16 @@ TSmultiple::TSmultiple(Adress& addr):masterSock(socket(addr.family(), SOCK_STREA
 	max_sd = 0;
 }
 
-void TSmultiple::wait_mode(){
-	bool turn_off = false;
-	while(!turn_off)
-	{
+
+
+int TSmultiple::wait(){
 		//clear the socket set
 		FD_ZERO(&readfds);
 	
 		//add master socket to set
 		FD_SET(masterSock, &readfds);
 		max_sd = masterSock;
-		int activity, new_socket;
+		int activity;
 		//add child sockets to set
 		for (std::vector<std::pair<Adress, int>>::iterator it=socks.begin(); it!=socks.end(); it++)
 		{
@@ -160,69 +159,61 @@ void TSmultiple::wait_mode(){
 		activity = select( max_sd + 1 , &readfds , NULL , NULL , NULL);
 	
 		if ((activity < 0) && (errno!=EINTR))
-		{
-			printf("select error");
-		}
-			
-		//If something happened on the master socket ,
-		//then its an incoming connection
-		if (FD_ISSET(masterSock, &readfds))
-		{
-			struct sockaddr_storage cstorage;
-    		struct sockaddr *caddr = (struct sockaddr *)(&cstorage);
-			socklen_t caddrlen = sizeof(struct sockaddr_storage);
-			new_socket = accept(masterSock, caddr, &caddrlen);
-			if (masterSock == -1) {
-					logexit("accept");
-				}
-			std::pair<Adress, int> new_user(Adress(caddr), new_socket);
-			socks.push_back(new_user);
-			//inform user of socket number - used in send and receive commands
-			std::cout << "New connection: " << new_user.first.str() << std::endl;
+			std::cout<<"select error" << std::endl;
+		return activity;
+}
 
-			//send new connection greeting message
-			const char *ab = message.c_str();
-			if( send(new_socket,ab, message.size(), 0) != (ssize_t)message.size() )
-			{
-				logexit("send");
-			}
-			std::cout << "Welcome message sent successfully" << std::endl;
+Adress TSmultiple::check_newConection(){
+	//If something happened on the master socket ,
+	//then its an incoming connection
+	if (FD_ISSET(masterSock, &readfds))
+	{
+		struct sockaddr_storage cstorage;
+		struct sockaddr *caddr = (struct sockaddr *)(&cstorage);
+		socklen_t caddrlen = sizeof(struct sockaddr_storage);
+		int new_socket = accept(masterSock, caddr, &caddrlen);
+		if (masterSock == -1)
+			logexit("accept");
+		//const char *ab = message.c_str();
+		if( send(new_socket,message.c_str(), message.size(), 0) != (ssize_t)message.size() )
+		{
+			logexit("send");
 		}
-		//else its some IO operation on some other socket
-		for (std::vector<std::pair<Adress, int>>::iterator it=socks.begin(); it!=socks.end(); ++it)
-		{				
-			if (FD_ISSET( it->second , &readfds))
+		Adress new_adress(caddr);
+		socks.push_back(std::pair<Adress, int>(new_adress, new_socket));
+		return new_adress;
+	}
+	else
+		throw false;
+}
+
+std::string TSmultiple::msg(){
+	//else its some IO operation on some other socket
+	std::string msg_;
+	for (std::vector<std::pair<Adress, int>>::iterator it=socks.begin(); it!=socks.end(); ++it){				
+		if (FD_ISSET( it->second , &readfds)){
+			//Check if it was for closing , and also read the
+			//incoming message
+			char *buffer;
+			buffer = new char[1024];
+			if (recv( it->second , buffer, 1024, 0) == 0)
 			{
-				
-				//Check if it was for closing , and also read the
-				//incoming message
-				char *buffer;
-				buffer = new char[1024];
-				if (recv( it->second , buffer, 1024, 0) == 0)
-				{
-					//Somebody disconnected , get his details and print
-					std::cout << "Host disconnected: " << it->first.str() << std::endl;
-					//Close the socket and mark as 0 in list for reuse
-					close( it->second );
-					socks.erase(it);
-					it--;
-				}
-					
-				//Echo back the message that came in
-				else
-				{
-					std::string msg(buffer);
-					if(msg == "KILL" || msg == "kill" || msg == "Kill"){
-						turn_off = true;
-					}
-					std::cout << "[msg] from " << it->first.str() << std::endl;
-					std::cout <<  ">> " << msg << std::endl;
-				}
-				delete buffer;
+				//Somebody disconnected , get his details and print
+				msg_ = "[log] Host disconnected: " + it->first.str();
+				close( it->second );
+				socks.erase(it);
 			}
+			else
+				msg_ = "[msg] " + std::string(buffer);
+			delete buffer;
+			break;
 		}
 	}
+	return msg_;
 }
+
+
+
 
 TSmultiple::~TSmultiple(){
 	std::cout<<"close the sockets of clients" << std::endl;

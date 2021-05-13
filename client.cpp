@@ -29,9 +29,16 @@ int main(int argc, char **argv) {
 	string msg;
 	int num = sock>>msg;
 	cout << msg << endl;
-	cout << "mensagem>> ";
-	cin >> msg;
-	num = sock<<msg;
-	cout << num << endl;
+	while(true){
+		cout << '\r' << '\r';
+		cout << "mensagem>> ";
+		cin >> msg;
+		if(msg == "break" || msg=="BREAK" || msg=="Break")
+			break;
+		num = sock<<msg;
+		cout << num << " bytes enviados" << endl;
+		if(msg == "kill" || msg=="KILL" || msg=="Kill")
+			break;
+	}
 	return 0;
 }

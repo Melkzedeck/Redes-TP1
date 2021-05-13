@@ -121,6 +121,15 @@ Adress::Adress(const Adress& aux){
 	this-> family_ = aux.family_;
 }
 
+Adress::Adress(){
+    port_ = 0;
+    addr_ = NULL;
+	addr4 = NULL;
+	addr6 = NULL;
+    addrlen_ = NULL;
+	family_ = 0;
+}
+
 string Adress::str() const{
 	int version;
     char addrstr[INET6_ADDRSTRLEN + 1] = "";

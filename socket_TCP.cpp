@@ -75,7 +75,7 @@ bool Tserver::atv(){
 	return (retval == 0 && error ==0);
 }
 
-Adress Tserver::waitConection(){
+int Tserver::waitConection(Adress& addr){
 	struct sockaddr_storage cstorage;
     struct sockaddr *caddr = (struct sockaddr *)(&cstorage);
     socklen_t caddrlen = sizeof(struct sockaddr_storage);
@@ -83,7 +83,8 @@ Adress Tserver::waitConection(){
 	if (socketC == -1) {
             logexit("accept");
         }
-	return Adress(caddr);
+	addr = Adress(caddr);
+	return socketC;
 }
 
 ssize_t Tserver::operator<<(const std::string& str){
@@ -108,7 +109,6 @@ ssize_t Tserver::operator>>(std::string& str){
 }
 
 void Tserver::closeConection(){
-
 	close(socketC);
 }
 
@@ -145,13 +145,13 @@ int TSmultiple::wait(){
 		max_sd = masterSock;
 		int activity;
 		//add child sockets to set
-		for (std::vector<std::pair<Adress, int>>::iterator it=socks.begin(); it!=socks.end(); it++)
+		for (std::map<int, Adress>::iterator it=socks.begin(); it!=socks.end(); it++)
 		{
-			FD_SET( it->second , &readfds);
+			FD_SET( it->first , &readfds);
 				
 			//highest file descriptor number, need it for the select function
-			if(it->second > max_sd)
-				max_sd = it->second;
+			if(it->first > max_sd)
+				max_sd = it->first;
 		}
 	
 		//wait for an activity on one of the sockets , timeout is NULL ,
@@ -163,7 +163,7 @@ int TSmultiple::wait(){
 		return activity;
 }
 
-Adress TSmultiple::check_newConection(){
+int TSmultiple::check_newConection(Adress& new_adress){
 	//If something happened on the master socket ,
 	//then its an incoming connection
 	if (FD_ISSET(masterSock, &readfds))
@@ -174,42 +174,38 @@ Adress TSmultiple::check_newConection(){
 		int new_socket = accept(masterSock, caddr, &caddrlen);
 		if (masterSock == -1)
 			logexit("accept");
-		//const char *ab = message.c_str();
 		if( send(new_socket,message.c_str(), message.size(), 0) != (ssize_t)message.size() )
-		{
 			logexit("send");
-		}
-		Adress new_adress(caddr);
-		socks.push_back(std::pair<Adress, int>(new_adress, new_socket));
-		return new_adress;
+		new_adress = Adress(caddr);
+		socks.insert(std::pair<int, Adress>(new_socket, new_adress));
+		return new_socket;
 	}
 	else
 		throw false;
 }
 
-std::string TSmultiple::msg(){
+Adress TSmultiple::msg(std::string& msg_){
 	//else its some IO operation on some other socket
-	std::string msg_;
-	for (std::vector<std::pair<Adress, int>>::iterator it=socks.begin(); it!=socks.end(); ++it){				
-		if (FD_ISSET( it->second , &readfds)){
+	for (std::map<int, Adress>::iterator it=socks.begin(); it!=socks.end(); ++it){				
+		if (FD_ISSET( it->first , &readfds)){
 			//Check if it was for closing , and also read the
 			//incoming message
+			Adress addr = it->second;
 			char *buffer;
 			buffer = new char[1024];
-			if (recv( it->second , buffer, 1024, 0) == 0)
+			if (recv( it->first , buffer, 1024, 0) == 0)
 			{
 				//Somebody disconnected , get his details and print
-				msg_ = "[log] Host disconnected: " + it->first.str();
-				close( it->second );
+				msg_ = "[log] Host disconnected: " + it->second.str();
+				close( it->first );
 				socks.erase(it);
 			}
 			else
 				msg_ = "[msg] " + std::string(buffer);
-			delete buffer;
-			break;
+			return addr;
 		}
 	}
-	return msg_;
+	return Adress();
 }
 
 
@@ -217,8 +213,8 @@ std::string TSmultiple::msg(){
 
 TSmultiple::~TSmultiple(){
 	std::cout<<"close the sockets of clients" << std::endl;
-	for (std::vector<std::pair<Adress, int>>::iterator it=socks.begin(); it!=socks.end(); ++it){
-		close(it->second);
+	for (std::map<int, Adress>::iterator it=socks.begin(); it!=socks.end(); ++it){
+		close(it->first);
 	}
 	std::cout<< "close the socket master" << std::endl;
 	close(masterSock);

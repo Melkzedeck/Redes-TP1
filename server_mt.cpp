@@ -19,16 +19,17 @@ int main(int argc, char **argv) {
     usage(argc, argv);
     Adress server(argv[1][1],argv[2]), newClient;
     TSmultiple sock(server);
+    int sock_new = 0;
     string msg;
     cout<< "bound to " << server.str()<<", waiting connections" << endl;
     bool turnOff = true;
     while(turnOff){
         sock.wait();
         try{
-            newClient = sock.check_newConection();
-            cout << "[log] New connection: " << newClient.str() << endl;
+            sock_new = sock.check_newConection(newClient);
+            cout << "[log] New connection in socket " << sock_new << ": " << newClient.str() << endl;
         }catch(bool){
-            msg = sock.msg();
+            sock.msg(msg);
             cout << msg << endl;
             if(msg.substr(6) == "kill" || msg.substr(6)=="KILL" || msg.substr(6)=="Kill")
                 break;

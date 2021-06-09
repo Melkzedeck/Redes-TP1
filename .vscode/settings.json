@@ -40,6 +40,25 @@
 		"sstream": "cpp",
 		"stdexcept": "cpp",
 		"streambuf": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"cstring": "cpp",
+		"ctime": "cpp",
+		"strstream": "cpp",
+		"bitset": "cpp",
+		"chrono": "cpp",
+		"complex": "cpp",
+		"functional": "cpp",
+		"iomanip": "cpp",
+		"numeric": "cpp",
+		"ratio": "cpp",
+		"thread": "cpp",
+		"cfenv": "cpp",
+		"cinttypes": "cpp",
+		"iterator": "cpp",
+		"random": "cpp",
+		"set": "cpp",
+		"condition_variable": "cpp",
+		"future": "cpp",
+		"mutex": "cpp"
 	}
 }

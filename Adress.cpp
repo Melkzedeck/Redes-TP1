@@ -177,6 +177,13 @@ Adress& Adress::operator=(const Adress& aux){
     return (*this);
 }
 
+bool Adress::empty(){
+    bool emp1, emp2;
+    emp1 = port_ == 0 && family_==0 && addrlen_==NULL;
+    emp2 = addr_==NULL && addr4 == NULL && addr6 == NULL;
+    return emp1 && emp2;
+}
+
 
 Adress::~Adress(){
     delete addrlen_;

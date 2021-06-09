@@ -43,14 +43,17 @@ public:
 	uint16_t port()const {return port_;};
 	const struct sockaddr* addr() const {return addr_;};
 	const socklen_t* addrlen() const {return addrlen_;};
-	//----------- Termino das funcoes GET -----------//
 	//retorna a familia do endereco (IPv4 ou IPv6)
 	int family() const {return family_;};
+	//----------- Termino das funcoes GET -----------//
+
 	//retorna o endereco no formato string
 	std::string str() const;
 	void refresh();//Por enquanto não há necessidade dessa funcao. Mas pode ser util
 	//operador de igualdade 
 	Adress& operator=(const Adress&);
+	//verifica se é um endereco vazio
+	bool empty();
 	//Destrutor (alocacao de memoria)
 	~Adress();
 };

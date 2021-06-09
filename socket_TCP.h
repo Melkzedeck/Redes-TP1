@@ -16,6 +16,7 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 #include <utility>      // std::pair
 #include "Adress.h"
+#include <map>
 
 class Tclient {
 	int socket_;
@@ -36,6 +37,8 @@ public:
 	e retorna a qntd de bits recebidas
 	TAMANHO_MAXIMO=1024*/
 	ssize_t operator>>(std::string&);
+	//compara o numero do socket
+	bool operator>(const Tclient& comp) const{return this->socket_ > comp.socket_;};
 	//destrutor
 	~Tclient();
 };
@@ -55,7 +58,7 @@ public:
 	//Get socket do Server
 	int sockS() const {return socketS;};//Socket Server
 	// Espera conexao com algum cliente
-	Adress waitConection();
+	int waitConection(Adress);
 	//fecha a conexao
 	void closeConection();
 	/* fluxo de saída de string:
@@ -76,19 +79,20 @@ public:
 class TSmultiple{
 	const int masterSock;
 	int max_sd;
-	std::vector<std::pair<Adress, int>> socks;
 	fd_set readfds;
 	static const std::string message;
+protected:
+	std::map<int, Adress> socks;
 public:
 	//Construtor usando endereco
 	TSmultiple(Adress&);
 	//Espera que ocorra alguma atividade
 	int wait();
 	//Checa se houve alguma nova conexão
-	Adress check_newConection();
+	int check_newConection(Adress&);
 	//Retorna a mensagem recebida de algum cliente
 	//Também verifica se houve desconexão
-	std::string msg();
+	Adress msg(std::string&);
 	
 	//void wait_mode();
 	//destrutor de objeto

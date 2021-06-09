@@ -1,6 +1,6 @@
 CC_FLAGS=-W         \
          -Wall      \
-         -pedantic
+         -pedantic  
 
 all: exe
 
@@ -28,6 +28,13 @@ Adress.o: Adress.h
 
 socket_TCP.o: socket_TCP.h
 	g++ $(CC_FLAGS) -c socket_TCP.cpp 
+
+example:
+	g++ $(CC_FLAGS) -pthread -c example.cpp 
+	g++ -pthread -o example example.o
+
+clean_ex:
+	rm example example.o
 
 clean:
 	rm server client server_mt

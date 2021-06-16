@@ -4,8 +4,7 @@ CC_FLAGS=-W         \
 
 all: exe
 
-exe: client server server_mt
-	rm server_mt.o
+exe: client server
 	rm server.o
 	rm client.o
 	rm Adress.o
@@ -37,4 +36,4 @@ clean_ex:
 	rm example example.o
 
 clean:
-	rm server client server_mt
+	rm server client

@@ -15,7 +15,6 @@ void usage(int argc, char **argv) {
 	}
 }
 
-#define BUFSZ 1024
 
 /*Exemplo de um programa cliente*/
 /*envio de mensagens simples*/
@@ -34,5 +33,3 @@ int main(int argc, char **argv) {
 	cout << "Closing the program..." << endl;
 	return 0;
 }
-
-

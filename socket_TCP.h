@@ -6,21 +6,26 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 //-------------------------------------------------//
-#include <stdio.h>
-#include <unistd.h>
+
 #include <string> /* memset() */
 #include <string.h>
-#include <iostream>   // std::cout
+#include "Adress.h"
+
+/* BIBLIOTECAS NAO USADAS NESSE MOMENTO
+#include <sys/time.h> //SELECT funcionalidades
+#include <utility>      // std::pair
+#include <map>
 #include <stdexcept>
 #include <vector>
-#include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
-#include <utility>      // std::pair
-#include "Adress.h"
-#include <map>
+#include <unistd.h>
+#include <stdio.h>
+*/
+
+
 
 class Tclient {
 	int socket_;
-	bool atv();
+	static unsigned int tam_max;
 public:
 	//Construtor do socket com endereco
 	Tclient(const Adress&);
@@ -28,6 +33,9 @@ public:
 	Tclient(const Tclient& c){this->socket_ = c.socket_;};
 	//construtor a partir de um int
 	Tclient(const int& s){socket_ = s;};
+	/* define um tamanho maximo de mensagem
+	Tamanho default: 1024*/
+	static void setTAM(const int& t){tam_max=t;};
 	//Get socket
 	int sock() const {return socket_;};
 	/* fluxo de saída de string:
@@ -36,8 +44,7 @@ public:
 	ssize_t operator<<(const std::string&);
 	/* fluxo de entrada de string:
 	recebe do socket uma string
-	e retorna a qntd de bits recebidas
-	TAMANHO_MAXIMO=1024*/
+	e retorna a qntd de bits recebidas*/
 	ssize_t operator>>(std::string&);
 	//compara o numero do socket
 	bool operator>(const Tclient& comp) const{return this->socket_ > comp.socket_;};
@@ -47,59 +54,25 @@ public:
 	~Tclient();
 };
 
-/*-- Implementacao de um servidor de conexao unica --*/ 
+class STclient : public Tclient{
+	Adress addr_;
+public:
+	STclient(int, Adress);
+	STclient& operator=(const STclient&);
+	Adress addr(){return addr_;};
+	std::string addr_str(){return addr_.str();};
+};
+
 class Tserver {
 	int socketS;
-	int socketC;
-	bool atv();
 public:
 	//Construtor do socket com endereco
 	Tserver(Adress&);
 	//Construtor copia
-	Tserver(const Tserver& copia){this->socketS = copia.socketS; this->socketC = copia.socketC;};
-	//Get socket do Client
-	int sockC() const {return socketC;};//Socket Client
+	Tserver(const Tserver& copia){this->socketS = copia.socketS;};
 	//Get socket do Server
 	int sockS() const {return socketS;};//Socket Server
-	// Espera conexao com algum cliente
-	int waitConection(Adress&);
-	//fecha a conexao
-	void closeConection();
-	/* fluxo de saída de string:
-	envia para o socket a string
-	e retorna a qntd de bits enviadas*/
-	ssize_t operator<<(const std::string&);
-	/* fluxo de entrada de string:
-	recebe do socket uma string
-	e retorna a qntd de bits recebidas
-	TAMANHO_MAXIMO=1024*/
-	ssize_t operator>>(std::string&);
-	//Destrutor
+	// Espera conexao e retorna o cliente conectado
+	STclient waitConection();
 	~Tserver();
 };
-
-
-/*-- Implementacao de um servidor de conexao multipla usando SELECT --*/ 
-class TSmultiple{
-	const int masterSock;
-	int max_sd;
-	fd_set readfds;
-	static const std::string message;
-protected:
-	std::map<int, Adress> socks;
-public:
-	//Construtor usando endereco
-	TSmultiple(Adress&);
-	//Espera que ocorra alguma atividade
-	int wait();
-	//Checa se houve alguma nova conexão
-	int check_newConection(Adress&);
-	//Retorna a mensagem recebida de algum cliente
-	//Também verifica se houve desconexão
-	Adress msg(std::string&);
-	
-	//void wait_mode();
-	//destrutor de objeto
-	~TSmultiple();
-};
-

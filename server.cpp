@@ -20,15 +20,14 @@ int main(int argc, char **argv) {
     Adress server(argv[1][1],argv[2]);
     Tserver sock(server);
     cout<< "bound to " << server.str()<<", waiting connections" << endl;
-    Adress client = sock.waitConection();
-    cout << "[log] connection from " << client.str() << endl;
+    STclient client = sock.waitConection();
+    cout << "[log] connection from " << client.addr_str() << endl;
     string msg;
-    int num = sock>>msg;
-    cout << msg << endl;
+    int num = client>>msg;
+    cout << "the messange received: "<< msg << endl;
     msg = "the first reply";
-    num = sock << msg;
-    cout << num << endl;
-    cout << "[log] close connection of " << client.str() << endl;
-    sock.closeConection();
+    num = client << msg;
+    cout << "num of bytes sended: " <<num << endl;
+    cout << "[log] close connection of " << client.addr_str() << endl;
     return 0;
 }

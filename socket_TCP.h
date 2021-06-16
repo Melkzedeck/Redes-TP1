@@ -26,6 +26,8 @@ public:
 	Tclient(const Adress&);
 	//Construtor copia
 	Tclient(const Tclient& c){this->socket_ = c.socket_;};
+	//construtor a partir de um int
+	Tclient(const int& s){socket_ = s;};
 	//Get socket
 	int sock() const {return socket_;};
 	/* fluxo de saída de string:
@@ -39,6 +41,8 @@ public:
 	ssize_t operator>>(std::string&);
 	//compara o numero do socket
 	bool operator>(const Tclient& comp) const{return this->socket_ > comp.socket_;};
+	//operador igual
+	Tclient& operator=(const Tclient&);
 	//destrutor
 	~Tclient();
 };
@@ -58,7 +62,7 @@ public:
 	//Get socket do Server
 	int sockS() const {return socketS;};//Socket Server
 	// Espera conexao com algum cliente
-	int waitConection(Adress);
+	int waitConection(Adress&);
 	//fecha a conexao
 	void closeConection();
 	/* fluxo de saída de string:

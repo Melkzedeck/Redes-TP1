@@ -1,4 +1,4 @@
-#include "avulso.h"
+#include "socket_TCP.h"
 
 /*-------------------- Comeco da classe Tclient --------------------*/
 

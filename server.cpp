@@ -58,8 +58,8 @@ void split(string& msg, string& command, string& position, int& x, int& y){
     string  cord, ord;
     command = msg.substr(0, msg.find_first_of(' '));
     position = msg.substr(msg.find_first_of(' ')+1);
-    cord = position.substr(0, msg.find_first_of(' '));
-    ord = position.substr(msg.find_first_of(' ')+1);
+    cord = position.substr(0, position.find_first_of(' '));
+    ord = position.substr(position.find_first_of(' ')+1);
     cout << msg << endl << command << endl << position << endl << cord << endl << ord <<endl << command << endl;
     x = stoi(cord);
     y = stoi(ord);

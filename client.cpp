@@ -7,6 +7,7 @@ using std::endl;
 using std::string;
 using std::cin;
 
+
 void usage(int argc, char **argv) {
 	if (argc < 3) {
 		printf("usage: %s <server IP> <server port>\n", argv[0]);
@@ -15,22 +16,30 @@ void usage(int argc, char **argv) {
 	}
 }
 
-#define BUFSZ 1024
 
-/*Exemplo de um programa cliente*/
-/*envio de mensagens simples*/
+
 
 int main(int argc, char **argv) {
-	
+	Tclient::setTAM(500);
 	usage(argc, argv);
 	Adress server(argv[1], argv[2]);
 	Tclient sock(server);
 	cout<<"connected to " << server.str() << endl;
-	string msg = "the first message";
-	int num = sock<<msg;
-	cout << "num of bytes sended: " << num << endl;
-	num = sock>>msg;
-	cout << "the message received: " << msg << endl;
+	string input, msg, pct;
+	do{
+		cout << "> ";
+		getline(cin,input);
+		input+='\n';
+		int num =sock<<input;
+		do{
+            num += sock>>pct;
+            msg += pct;
+        }while(pct.back()!='\n');
+		cout << "< " << msg;
+		input.clear();
+		msg.clear();
+		pct.clear();
+	}while(strcasecmp(input.c_str(),"kill")!=0);
 	cout << "Closing the program..." << endl;
 	return 0;
 }

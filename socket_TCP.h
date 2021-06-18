@@ -6,9 +6,6 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 //-------------------------------------------------//
-
-#include <string> /* memset() */
-#include <string.h>
 #include "Adress.h"
 
 /* BIBLIOTECAS NAO USADAS NESSE MOMENTO
@@ -19,9 +16,9 @@
 #include <vector>
 #include <unistd.h>
 #include <stdio.h>
+//#include <string> // memset() 
+//#include <string.h>
 */
-
-
 
 class Tclient {
 	int socket_;

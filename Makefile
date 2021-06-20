@@ -4,15 +4,12 @@ CC_FLAGS=-W         \
 
 all: exe
 
-exe: client server
+exe: client server client2
 	rm server.o
 	rm client.o
+	rm client2.o
 	rm Adress.o
 	rm socket_TCP.o
-
-server_mt:	Adress.o socket_TCP.o
-	g++ $(CC_FLAGS) -c server_mt.cpp 
-	g++ -o server_mt server_mt.o Adress.o socket_TCP.o
 
 server:	Adress.o socket_TCP.o
 	g++ $(CC_FLAGS) -c server.cpp 
@@ -22,18 +19,15 @@ client: Adress.o socket_TCP.o
 	g++ $(CC_FLAGS) -c client.cpp 
 	g++ -o client client.o Adress.o socket_TCP.o
 
+client2: Adress.o socket_TCP.o
+	g++ $(CC_FLAGS) -c client2.cpp 
+	g++ -o client2 client2.o Adress.o socket_TCP.o
+
 Adress.o: Adress.h
 	g++ $(CC_FLAGS) -c Adress.cpp 
 
 socket_TCP.o: socket_TCP.h
 	g++ $(CC_FLAGS) -c socket_TCP.cpp 
 
-example:
-	g++ $(CC_FLAGS) -pthread -c example.cpp 
-	g++ -pthread -o example example.o
-
-clean_ex:
-	rm example example.o
-
 clean:
-	rm server client
+	rm server client client2

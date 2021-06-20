@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string>
 #include <utility>
+#include <math.h>
 #include "Adress.h"
 #include "socket_TCP.h"
 
@@ -36,11 +37,15 @@ bool operator!=(const local& lc1,const  local& lc2){
 }
 
 unsigned int nearby(const vector<local>& mundo, const local& cord){
-	unsigned int distance=10000*2, pos=0;
+	unsigned int pos=0;
+    double distance=10000*2, raio;
 	for(unsigned int i = 0; i<mundo.size(); i++){
-		unsigned int dist;
-		if((dist = abs(mundo[i].x-cord.x) + abs(mundo[i].y-cord.y))<distance){
-			distance = dist;
+		double distx_2, disty_2;
+        distx_2 = pow((mundo[i].x-cord.x),2);
+        disty_2 = pow((mundo[i].y-cord.y),2);
+        raio = sqrt(distx_2 + disty_2);
+		if(raio<distance){
+			distance = raio;
 			pos = i;
 		}
 	}
@@ -64,9 +69,8 @@ bool remove(vector<local>& mundo, const local& cord){
 	return false;
 }
 
-void split(string& msg, string& command, string& position, int& x, int& y){
-    
-    string  cord, ord;
+char split(string& msg, string& position, int& x, int& y){
+    string command;
     //dividindo o comando da posicao
     command = msg.substr(0, msg.find_first_of(' '));
     if(command == "list" || command == "kill"){
@@ -77,16 +81,10 @@ void split(string& msg, string& command, string& position, int& x, int& y){
     else{
         position = msg.substr(msg.find_first_of(' ')+1);
         //dividindo a cordenada da ordenada 
-        cord = position.substr(0, position.find_first_of(' '));
-        ord = position.substr(position.find_first_of(' ')+1);
-        //transformando string em inteiro
-        x = stoi(cord);
-        y = stoi(ord);
+        auto space = position.find_first_of(' ');
+        x = stoi(position.substr(0, space));
+        y = stoi(position.substr(space +1));
     }
-}
-
-
-char function(const string& command){
     if(strcasecmp(command.c_str(),"list")==0){
         return 'l';
     }
@@ -99,10 +97,76 @@ char function(const string& command){
     else if(strcasecmp(command.c_str(),"rm")==0){
         return 'r';
     }
+    else if(strcasecmp(command.c_str(),"kill")==0){
+        return 'k';
+    }
     else{
         return 'e';
     }
 }
+
+
+
+void comando(string& msg, string &resposta, vector<local>& mundo){
+    resposta.clear();
+    size_t eom = msg.find_first_of('\n');
+    string position, command;
+    command = msg.substr(0,eom);
+    msg = msg.substr(eom+1);
+    cout << command << '\t' << msg << endl;
+    local pos;
+    switch (split(command, position, pos.x, pos.y)){
+        case 'l':
+    {
+        if(mundo.size()==0)
+            resposta = "none ";
+        else{
+            for(unsigned int i = 0; i < mundo.size(); i++){
+                resposta += (to_string(mundo[i].x) + " " + to_string(mundo[i].y) + " ");
+            }   
+        }
+        resposta.pop_back();
+        resposta += "\n";
+        cout << resposta;
+        break;
+    }
+        case 'k' : msg = "kill"; break;
+        case 'a':
+    {
+        if(mundo.size()==50){
+            resposta = "limit exceeded\n";
+        }
+        else if(add(mundo, pos)){
+            resposta=(position+" added\n");
+        }
+        else{
+            resposta = (position+" already exists\n");
+        }
+        break;
+    }
+        case 'r' :
+    {
+        if(remove(mundo, pos)){
+            resposta = (position+" removed\n");
+        }
+        else{
+            resposta = (position+" does not exist\n");
+        }
+        break;
+    }
+        case 'q' :
+    {
+        if(mundo.size()==0)
+            resposta = "none\n";
+        unsigned int i = nearby(mundo, pos);
+        resposta = (to_string(mundo[i].x) + " " + to_string(mundo[i].y)+"\n");
+        break;
+    }
+        default: break;
+    }
+
+}
+
 
 int main(int argc, char **argv) {
     STclient::setTAM(500);
@@ -112,81 +176,29 @@ int main(int argc, char **argv) {
     Tserver sock(server);
     int num = 0;
     cout<< "bound to " << server.str()<<", waiting connections" << endl;
-    string msg;
+    string msg, resposta;
     do{
         STclient client = sock.waitConection();
         cout << "[log] connection from " << client.addr_str() << endl;
-        string pct, command, position;
+        string command, position, pct;
         do{
-            msg.clear();
-            pct.clear();
             num = 0;
-            do{
-                num += client>>pct;
-                if(num==0)
+            num = client>>pct;
+            msg += pct;
+            if(num==0)
+                break;
+                        
+            while(msg.find_first_of('\n')!=msg.npos){
+                comando(msg,resposta,mundo);
+                if(resposta!="kill")
+                    client<<resposta;
+                else
                     break;
-                msg += pct;
-            }while(pct[pct.size()-1]!='\n'&& num>0);
-            msg.pop_back();
-            if(num==0 || strcasecmp(msg.c_str(),"kill")==0)
-                break;
-            cout << msg << endl;
-            local pos;
-            split(msg, command, position, pos.x, pos.y);
-            if(pos.x>9999||pos.y>9999){
-                client<<"out of range\n";
-                continue;
             }
-            switch (function(command)){
-            case 'l':
-            {
-                msg.clear();
-                for(unsigned int i = 0; i < mundo.size(); i++){
-                    msg += (to_string(mundo[i].x) + " " + to_string(mundo[i].y)+ " ");
-                    
-                }
-                msg += "\n";
-                client<<msg;
-                break;
-            }
-            case 'k' : break;
-            case 'a':
-            {
-                //cout<<(int)*(command.c_str()) << endl;
-                if(mundo.size()==50){
-                    client<<"limit exceeded\n";
-                }
-                else if(add(mundo, pos)){
-                    client<<(position+" added\n");
-                }
-                else{
-                    client<<(position+" already exist\n");
-                }
-                break;
-            }
-            case 'r' :
-            {
-                if(remove(mundo, pos)){
-                    client<<(position+" removed\n");
-                }
-                else{
-                    client<<(position+" does not exist\n");
-                }
-                break;
-            }
-            case 'q' :
-            {
-                if(mundo.size()==0)
-                    client<<"none\n";
-                unsigned int i = nearby(mundo, pos);
-                client << (to_string(mundo[i].x) + " " + to_string(mundo[i].y)+"\n");
-                break;
-            }
-            default: break;
-            }
+            
         } while(num!=0 && msg!="kill");
         cout << "[log] close connection of " << client.addr_str() << endl;
-    }while(strcasecmp(msg.c_str(),"kill")!=0);
+    }while(msg != "kill");
     cout << "Kill the server" << endl;
     return 0;
 }

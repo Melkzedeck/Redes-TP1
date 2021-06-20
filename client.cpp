@@ -17,8 +17,6 @@ void usage(int argc, char **argv) {
 }
 
 
-
-
 int main(int argc, char **argv) {
 	Tclient::setTAM(500);
 	usage(argc, argv);
@@ -31,6 +29,8 @@ int main(int argc, char **argv) {
 		getline(cin,input);
 		input+='\n';
 		int num =sock<<input;
+		if(strcasecmp(input.c_str(),"kill\n")==0)
+			continue;
 		do{
             num += sock>>pct;
             msg += pct;
@@ -39,7 +39,7 @@ int main(int argc, char **argv) {
 		input.clear();
 		msg.clear();
 		pct.clear();
-	}while(strcasecmp(input.c_str(),"kill")!=0);
+	}while(strcasecmp(input.c_str(),"kill\n")!=0);
 	cout << "Closing the program..." << endl;
 	return 0;
 }

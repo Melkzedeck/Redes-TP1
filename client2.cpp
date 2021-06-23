@@ -25,29 +25,30 @@ int main(int argc, char **argv)
 	Adress server(argv[1], argv[2]);
 	Tclient sock(server);
 	cout<<"connected to " << server.str() << endl;
-    string line, msg;
+    string line;
     ifstream myfile("./redes_tp1/tests/in/test_3.in");
     ofstream output("test_3.out");
     if (myfile){
-        string pct;
         while (getline( myfile, line )){
+            string msg;
+            int num = 0;
             line += '\n';
             cout<< "< " << line;
-            int num =sock<<line;
+            for(unsigned int i = 0; i < line.size(); i = i+2){
+                num =sock<<line.substr(i,2);
+            }
             if(line=="kill\n")
                 continue;
-            do{
-                num += sock>>pct;
-                msg += pct;
-            }while(pct.back()!='\n');
-            cout << "> " << msg;
+            msg.clear();
+            num = 0;
+            cout << "> " << msg << "size of message: " << num << "\t size of request: " << msg.size() << endl;
+            num = sock>>msg;
             output << msg;
-		    msg.clear();
-		    pct.clear();
         }
         myfile.close();
     }
-    else cout << "fooey\n"; 
+    else 
+        cout << "fooey\n"; 
     cout << "Closing the program..." << endl;
     return 0;
   }

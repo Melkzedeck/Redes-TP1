@@ -31,3 +31,5 @@ socket_TCP.o: socket_TCP.h
 
 clean:
 	rm server client client2
+	rm test_0.out test_1.out test_2.out test_3.out
+

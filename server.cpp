@@ -113,7 +113,7 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
     string position, command;
     command = msg.substr(0,eom);
     msg = msg.substr(eom+1);
-    cout << command << '\t' << msg << endl;
+    //cout << command << '\t' << msg << endl;
     local pos;
     switch (split(command, position, pos.x, pos.y)){
         case 'l':
@@ -127,7 +127,6 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
         }
         resposta.pop_back();
         resposta += "\n";
-        cout << resposta;
         break;
     }
         case 'k' : msg = "kill"; break;
@@ -176,12 +175,13 @@ int main(int argc, char **argv) {
     Tserver sock(server);
     int num = 0;
     cout<< "bound to " << server.str()<<", waiting connections" << endl;
-    string msg, resposta;
+    string msg;
     do{
         STclient client = sock.waitConection();
         cout << "[log] connection from " << client.addr_str() << endl;
         string command, position, pct;
         do{
+            string resposta;
             num = 0;
             num = client>>pct;
             msg += pct;
@@ -189,11 +189,14 @@ int main(int argc, char **argv) {
                 break;
                         
             while(msg.find_first_of('\n')!=msg.npos){
+                resposta.clear();
                 comando(msg,resposta,mundo);
+                cout<<resposta;
                 if(resposta!="kill")
                     client<<resposta;
                 else
                     break;
+                
             }
             
         } while(num!=0 && msg!="kill");

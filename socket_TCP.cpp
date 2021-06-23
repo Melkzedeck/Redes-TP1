@@ -17,13 +17,13 @@ Tclient::Tclient(const Adress& addr){
 
 
 ssize_t Tclient::operator<<(const std::string& str){
-		return send(socket_, str.c_str(), str.length(), 0);
+		return send(socket_, str.c_str(), str.size(), 0);
 }
 
 ssize_t Tclient::operator>>(std::string& str){
     char *msg;
     msg = new char[tam_max];
-    ssize_t cnt = recv(socket_, msg, tam_max + 1, 0);
+    ssize_t cnt = recv(socket_, msg, tam_max, 0);
     str = std::string(msg);
     delete msg;
     return cnt;

@@ -1,4 +1,4 @@
-#include "socket_TCP.h"
+#include "../include/socket_TCP.h"
 
 /*-------------------- Comeco da classe Tclient --------------------*/
 

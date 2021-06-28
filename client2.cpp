@@ -1,8 +1,8 @@
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "Adress.h"
-#include "socket_TCP.h"
+#include "./include/Adress.h"
+#include "./include/socket_TCP.h"
 
 using std::string;
 using std::ifstream;

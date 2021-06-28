@@ -1,7 +1,5 @@
 # Redes_DCC
 
-Construção de Classes relacionadas a sockets C, implementadas em C++
+Construção de Classes relacionadas a sockets C do protocolo TCP, implementadas em C++
 
-Classes implementadas: TCP Client, TCP Server unico, TCP Server multiplo
-
-Classes em andamento: UDP client e Server
+Classes implementadas: TCP Client, TCP Server unico e Adress

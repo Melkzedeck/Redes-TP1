@@ -1,33 +1,61 @@
+
+PROJ_SERVER=server
+
+PROJ_CLIENT=client
+
+PROJ_CLIENT2=client2
+
+RM = rm -rf
+
+# .c files
+C_SOURCE=$(wildcard ./source/*.cpp)
+
+# .h files
+H_SOURCE=$(wildcard ./include/*.h)
+
+# Object files
+OBJ=$(subst .cpp,.o,$(subst source,objects,$(C_SOURCE)))
+
+# Compiler
+CC=g++
+
+# Flags for compiler
 CC_FLAGS=-W         \
          -Wall      \
-         -pedantic  
+         -pedantic
 
-all: exe
+#
+# Compilation and linking
+#
+all: objFolder $(PROJ_SERVER)
 
-exe: client server client2
-	rm server.o
-	rm client.o
-	rm client2.o
-	rm Adress.o
-	rm socket_TCP.o
+$(PROJ_SERVER): $(OBJ) $(PROJ_SERVER).o
+	$(CC) -o $@ $^
 
-server:	Adress.o socket_TCP.o
-	g++ $(CC_FLAGS) -c server.cpp 
-	g++ -o server server.o Adress.o socket_TCP.o
+#$(PROJ_CLIENT): $(OBJ) $(PROJ_CLIENT).o
+#	$(CC) -o $@ $^
+#
+#$(PROJ_CLIENT2): $(OBJ) $(PROJ_CLIENT2).o
+#	$(CC) -o $@ $^
+#
+./objects/%.o: ./source/%.cpp ./include/%.h
+	$(CC) -c -o $@ $< $(CC_FLAGS)  
 
-client: Adress.o socket_TCP.o
-	g++ $(CC_FLAGS) -c client.cpp 
-	g++ -o client client.o Adress.o socket_TCP.o
+server.o: server.cpp $(H_SOURCE)
+	$(CC) -c $< $(CC_FLAGS)
 
-client2: Adress.o socket_TCP.o
-	g++ $(CC_FLAGS) -c client2.cpp 
-	g++ -o client2 client2.o Adress.o socket_TCP.o
+client.o: client.cpp $(H_SOURCE)
+	$(CC) -c $< $(CC_FLAGS)
 
-Adress.o: Adress.h
-	g++ $(CC_FLAGS) -c Adress.cpp 
+client2.o: client2.cpp $(H_SOURCE)
+	$(CC) -c $< $(CC_FLAGS)
 
-socket_TCP.o: socket_TCP.h
-	g++ $(CC_FLAGS) -c socket_TCP.cpp 
+
+objFolder:
+	@ mkdir -p objects
 
 clean:
-	rm server client client2
+	@ $(RM) ./objects/*.o $(PROJ_NAME) *~
+	@ rmdir objects
+	@ $(RM) *.o
+	@ $(RM) $(PROJ_SERVER) $(PROJ_CLIENT) $(PROJ_CLIENT2) *~

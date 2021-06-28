@@ -8,29 +8,22 @@ using std::string;
 using std::cin;
 
 
-void usage(int argc, char **argv) {
-	if (argc < 3) {
-		printf("usage: %s <server IP> <server port>\n", argv[0]);
-		printf("example: %s 127.0.0.1 51511\n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
-}
-
-
 int main(int argc, char **argv) {
+	if (argc < 3)
+		usage_c(argv[0]);
 	Tclient::setTAM(500);
-	usage(argc, argv);
 	Adress server(argv[1], argv[2]);
-	Tclient sock(server);
-	cout<<"connected to " << server.str() << endl;
+	Tclient sock(server);//servidor conectado
+	cout<<"connected to " << server.str() << endl; 
 	string input, msg, pct;
 	do{
 		cout << "> ";
 		getline(cin,input);
 		input+='\n';
-		int num =sock<<input;
+		int num =sock<<input; //envia a msg
 		if(strcasecmp(input.c_str(),"kill\n")==0)
 			continue;
+		//recebe as msgs mesmo se estiverem particionadas
 		do{
             num += sock>>pct;
             msg += pct;
@@ -39,7 +32,7 @@ int main(int argc, char **argv) {
 		input.clear();
 		msg.clear();
 		pct.clear();
-	}while(strcasecmp(input.c_str(),"kill\n")!=0);
+	}while(strcasecmp(input.c_str(),"kill\n")!=0);//se "kill" for mandado na rede, ele quebra o loop
 	cout << "Closing the program..." << endl;
 	return 0;
 }

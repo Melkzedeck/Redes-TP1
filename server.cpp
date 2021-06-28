@@ -20,14 +20,6 @@ typedef struct local{
     int y;
 }local;
 
-void usage(int argc, char **argv) {
-    if (argc < 3) {
-        printf("usage: %s <v4|v6> <server port>\n", argv[0]);
-        printf("example: %s v4 51511\n", argv[0]);
-        exit(EXIT_FAILURE);
-    }
-}
-
 bool operator==(const local& lc1,const  local& lc2){
     return (lc1.x==lc2.x)&&(lc1.y==lc2.y);
 }
@@ -36,6 +28,7 @@ bool operator!=(const local& lc1,const  local& lc2){
     return !(lc1==lc2);
 }
 
+//função usada na query: retorna o indice do lugar mais proximo
 unsigned int nearby(const vector<local>& mundo, const local& cord){
 	unsigned int pos=0;
     double distance=10000*2, raio;
@@ -69,11 +62,11 @@ bool remove(vector<local>& mundo, const local& cord){
 	return false;
 }
 
+//divide o comando da posicao
 char split(string& msg, string& position, int& x, int& y){
     string command;
-    //dividindo o comando da posicao
     command = msg.substr(0, msg.find_first_of(' '));
-    if(command == "list" || command == "kill"){
+    if(command != "add" && command != "rm" && command != "query"){
         x = 0;
         y = 0;
         position.clear();
@@ -85,38 +78,33 @@ char split(string& msg, string& position, int& x, int& y){
         x = stoi(position.substr(0, space));
         y = stoi(position.substr(space +1));
     }
-    if(strcasecmp(command.c_str(),"list")==0){
+    //abaixo lanca um char que sera recebido num switch
+    if(strcasecmp(command.c_str(),"list")==0)
         return 'l';
-    }
-    else if(strcasecmp(command.c_str(),"query")==0){
+    else if(strcasecmp(command.c_str(),"query")==0)
         return 'q';
-    }
-    else if(strcasecmp(command.c_str(),"add")==0){
+    else if(strcasecmp(command.c_str(),"add")==0)
         return 'a';
-    }
-    else if(strcasecmp(command.c_str(),"rm")==0){
+    else if(strcasecmp(command.c_str(),"rm")==0)
         return 'r';
-    }
-    else if(strcasecmp(command.c_str(),"kill")==0){
+    else if(strcasecmp(command.c_str(),"kill")==0)
         return 'k';
-    }
-    else{
+    else
         return 'e';
-    }
 }
 
 
-
+//execucao de comando: do início de uma string ate chegar em um '\n'
 void comando(string& msg, string &resposta, vector<local>& mundo){
     resposta.clear();
-    size_t eom = msg.find_first_of('\n');
+    size_t eom = msg.find_first_of('\n');//eom = end of message
     string position, command;
     command = msg.substr(0,eom);
     msg = msg.substr(eom+1);
     cout << command << '\t' << msg << endl;
     local pos;
     switch (split(command, position, pos.x, pos.y)){
-        case 'l':
+        case 'l': //list
     {
         if(mundo.size()==0)
             resposta = "none ";
@@ -130,8 +118,8 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
         cout << resposta;
         break;
     }
-        case 'k' : msg = "kill"; break;
-        case 'a':
+        case 'k' : msg = "kill"; break; //kill
+        case 'a': // add
     {
         if(mundo.size()==50){
             resposta = "limit exceeded\n";
@@ -144,7 +132,7 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
         }
         break;
     }
-        case 'r' :
+        case 'r' : // rm
     {
         if(remove(mundo, pos)){
             resposta = (position+" removed\n");
@@ -154,7 +142,7 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
         }
         break;
     }
-        case 'q' :
+        case 'q' : // query
     {
         if(mundo.size()==0)
             resposta = "none\n";
@@ -162,33 +150,34 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
         resposta = (to_string(mundo[i].x) + " " + to_string(mundo[i].y)+"\n");
         break;
     }
-        default: break;
+        default: cout << "Algum erro ocorreu" << endl; break; // erro
     }
 
 }
 
 
 int main(int argc, char **argv) {
-    STclient::setTAM(500);
+    if (argc < 3)
+        usage_s(argv[0]);
+    STclient::setTAM(500);//seta o maior numero de bytes de envio e de recebimento
     vector<local> mundo;
-    usage(argc, argv);
     Adress server(argv[1][1],argv[2]);
     Tserver sock(server);
     int num = 0;
     cout<< "bound to " << server.str()<<", waiting connections" << endl;
     string msg, resposta;
-    do{
-        STclient client = sock.waitConection();
+    do{ // permanece nesse loop enquanto o servidor não receber a mensagem "kill"
+        STclient client = sock.waitConection();//depois de conectado retorna uma classe com o descritor
         cout << "[log] connection from " << client.addr_str() << endl;
         string command, position, pct;
-        do{
+        do{ // permanece nesse loop enquanto o cliente estiver conectado com o servidor
             num = 0;
             num = client>>pct;
             msg += pct;
             if(num==0)
                 break;
                         
-            while(msg.find_first_of('\n')!=msg.npos){
+            while(msg.find_first_of('\n')!=msg.npos){//permanece nesse loop enquanto a msg contiver um comando
                 comando(msg,resposta,mundo);
                 if(resposta!="kill")
                     client<<resposta;

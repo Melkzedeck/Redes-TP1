@@ -155,15 +155,6 @@ string Adress::str() const{
     return addrstr_s;
 }
 
-void Adress::refresh(){
-
-    if (family_ == AF_INET) {
-        port_ = ntohs(addr4->sin_port); // network to host short
-    } else if (family_ == AF_INET6) {
-        port_ = ntohs(addr6->sin6_port); // network to host short
-    } else
-		throw invalid_argument("versao desconhecida");
-}
 
 Adress& Adress::operator=(const Adress& aux){
     this-> port_ = aux.port_;

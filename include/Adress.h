@@ -49,7 +49,6 @@ public:
 
 	//retorna o endereco no formato string
 	std::string str() const;
-	void refresh();//Por enquanto não há necessidade dessa funcao. Mas pode ser util
 	//operador de igualdade 
 	Adress& operator=(const Adress&);
 	//verifica se é um endereco vazio

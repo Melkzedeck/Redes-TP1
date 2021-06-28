@@ -27,35 +27,29 @@ CC_FLAGS=-W         \
 #
 # Compilation and linking
 #
-all: objFolder $(PROJ_SERVER)
+all: objFolder $(PROJ_SERVER) $(PROJ_CLIENT) $(PROJ_CLIENT2)
 
-$(PROJ_SERVER): $(OBJ) $(PROJ_SERVER).o
+$(PROJ_SERVER): ./obj/$(PROJ_SERVER).o $(OBJ)
 	$(CC) -o $@ $^
 
-#$(PROJ_CLIENT): $(OBJ) $(PROJ_CLIENT).o
-#	$(CC) -o $@ $^
-#
-#$(PROJ_CLIENT2): $(OBJ) $(PROJ_CLIENT2).o
-#	$(CC) -o $@ $^
-#
+$(PROJ_CLIENT): ./obj/$(PROJ_CLIENT).o $(OBJ)
+	$(CC) -o $@ $^
+
+$(PROJ_CLIENT2): ./obj/$(PROJ_CLIENT2).o $(OBJ)
+	$(CC) -o $@ $^
+
 ./objects/%.o: ./source/%.cpp ./include/%.h
-	$(CC) -c -o $@ $< $(CC_FLAGS)  
+	@ $(CC) -c -o $@ $< $(CC_FLAGS)  
 
-server.o: server.cpp $(H_SOURCE)
-	$(CC) -c $< $(CC_FLAGS)
-
-client.o: client.cpp $(H_SOURCE)
-	$(CC) -c $< $(CC_FLAGS)
-
-client2.o: client2.cpp $(H_SOURCE)
-	$(CC) -c $< $(CC_FLAGS)
-
+./obj/%.o: %.cpp $(H_SOURCE)
+	@ $(CC) -c -o $@ $< $(CC_FLAGS)  
 
 objFolder:
 	@ mkdir -p objects
+	@ mkdir -p obj
 
 clean:
-	@ $(RM) ./objects/*.o $(PROJ_NAME) *~
-	@ rmdir objects
-	@ $(RM) *.o
+	@ $(RM) ./objects/*.o ./obj/*.o *~
+	@ rmdir objects obj
 	@ $(RM) $(PROJ_SERVER) $(PROJ_CLIENT) $(PROJ_CLIENT2) *~
+	@ echo 'Objetos e programas removidos'

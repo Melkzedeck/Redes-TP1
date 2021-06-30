@@ -28,7 +28,7 @@ class Adress {
 	socklen_t *addrlen_;
 	int family_;
 public:
-	//Construtor da classe usando a versão(char: '4'-(IPv4) ou '6'-(IPv6))aux.family_ e a porta(string) como argumento
+	//Construtor da classe usando a versão(char: '4'-(IPv4) ou '6'-(IPv6)) e a porta(string) como argumento
 	Adress(char v, std::string port_s);
 	//Construtor usando o endereco(string) e porta(string)
 	Adress(std::string addrstr, std::string port_s);

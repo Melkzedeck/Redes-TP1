@@ -28,10 +28,10 @@ CC_FLAGS=-W         \
 all: objFolder $(PROJ_SERVER) $(PROJ_CLIENT) $(PROJ_CLIENT2)
 
 $(PROJ_SERVER): ./obj/$(PROJ_SERVER).o $(OBJ)
-	$(CC) -o $@ $^
+	$(CC) -o servidor $^
 
 $(PROJ_CLIENT): ./obj/$(PROJ_CLIENT).o $(OBJ)
-	$(CC) -o $@ $^
+	$(CC) -o cliente $^
 
 ./objects/%.o: ./source/%.cpp ./include/%.h
 	@ $(CC) -c -o $@ $< $(CC_FLAGS)  
@@ -46,5 +46,5 @@ objFolder:
 clean:
 	@ $(RM) ./objects/*.o ./obj/*.o *~
 	@ rmdir objects obj
-	@ $(RM) $(PROJ_SERVER) $(PROJ_CLIENT) *~
+	@ $(RM) cliente servidor *~
 	@ echo 'Objetos e programas removidos'

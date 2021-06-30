@@ -10,12 +10,11 @@
 #include <unistd.h>
 #include <string> /* memset() */
 #include <string.h>
-#include <iostream>   // std::cout
 #include <stdexcept> //Tratamento de algumas excecoes
 
 void logexit(const char *msg); //saida de erro
-void usage_s(std::string name);
-void usage_c(std::string name);
+void usage_s(int argc, char **argv);
+void usage_c(int argc, char **argv);
 
 /* Classe para tratamento de endereco e porta. A implementacao é baseada 
 na interface POSIX (desenvolvida nessa classe em C) de soquetes de rede*/

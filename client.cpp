@@ -2,6 +2,7 @@
 #include "./include/Adress.h"
 #include "./include/socket_TCP.h"
 
+
 using std::cout;
 using std::endl;
 using std::string;
@@ -9,8 +10,7 @@ using std::cin;
 
 
 int main(int argc, char **argv) {
-	if (argc < 3)
-		usage_c(argv[0]);
+	usage_c(argc, argv);
 	Tclient::setTAM(500);
 	Adress server(argv[1], argv[2]);
 	Tclient sock(server);//servidor conectado

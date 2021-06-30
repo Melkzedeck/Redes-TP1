@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 #include <math.h>
+
 #include "./include/Adress.h"
 #include "./include/socket_TCP.h"
 
@@ -101,7 +102,7 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
     string position, command;
     command = msg.substr(0,eom);
     msg = msg.substr(eom+1);
-    cout << command << '\t' << msg << endl;
+    cout << command << endl;
     local pos;
     switch (split(command, position, pos.x, pos.y)){
         case 'l': //list
@@ -115,7 +116,6 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
         }
         resposta.pop_back();
         resposta += "\n";
-        cout << resposta;
         break;
     }
         case 'k' : msg = "kill"; break; //kill
@@ -150,15 +150,14 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
         resposta = (to_string(mundo[i].x) + " " + to_string(mundo[i].y)+"\n");
         break;
     }
-        default: cout << "Algum erro ocorreu" << endl; break; // erro
+        default: cout << "mensagem inesperada" << endl; break; // erro
     }
 
 }
 
 
 int main(int argc, char **argv) {
-    if (argc < 3)
-        usage_s(argv[0]);
+        usage_s(argc, argv);
     STclient::setTAM(500);//seta o maior numero de bytes de envio e de recebimento
     vector<local> mundo;
     Adress server(argv[1][1],argv[2]);

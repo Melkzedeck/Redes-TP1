@@ -7,8 +7,6 @@
 using std::string;
 using std::stoi;
 using std::to_string;
-using std::cout;
-using std::endl;
 using std::invalid_argument;
 
 void logexit(const char *msg) {
@@ -16,16 +14,22 @@ void logexit(const char *msg) {
 	exit(EXIT_FAILURE);
 }
 
-void usage_s(string name) {
-    cout << "usage: " << name << " <v4|v6> <server port>" << endl;
-    cout << "example: " << name << " v4 51511" << endl;
-    exit(EXIT_FAILURE);
+void usage_s(int argc, char **argv) {
+    if(argc<3 || (strcmp(argv[1],"v6")!=0 && strcmp(argv[1],"v4")!=0)){
+        string msg;
+        msg += "how to use: " + string(argv[0]) + " <v4|v6> <server port>\n";
+        msg += "example: " + string(argv[0]) + " v4 51511";
+        throw std::invalid_argument(msg);
+    }
 }
 
-void usage_c(string name) {
-    cout << "usage: " << name << " <server IP> <server port>" << endl;
-    cout << "example: " << name << " 127.0.0.1 51511" << endl;
-	exit(EXIT_FAILURE);
+void usage_c(int argc, char **argv) {
+    if(argc<3){
+        string msg;
+        msg +=  "how to use: " + string(argv[0]) + " <server IP> <server port>\n";
+        msg +=  "example: " + string(argv[0]) + " 127.0.0.1 51511";
+        throw std::invalid_argument(msg);
+    }
 }
 
 Adress::Adress(char v, string port_s){
@@ -138,14 +142,12 @@ string Adress::str() const{
         if (!inet_ntop(AF_INET, &(addr4->sin_addr), addrstr,
                        INET6_ADDRSTRLEN + 1)) {
 			logexit("ntop");
-            cout<<"error";
         }
     } else if (family_ == AF_INET6) {
         version = 6;
         if (!inet_ntop(AF_INET6, &(addr6->sin6_addr), addrstr,
                        INET6_ADDRSTRLEN + 1)) {
             logexit("ntop");
-            cout<<"error";
         }
     } else
 		throw invalid_argument("versao desconhecida");

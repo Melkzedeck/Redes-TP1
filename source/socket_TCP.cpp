@@ -23,8 +23,8 @@ ssize_t Tclient::operator<<(const std::string& str){
 ssize_t Tclient::operator>>(std::string& str){
     char *msg;
     msg = new char[tam_max];
-    ssize_t cnt = recv(socket_, msg, tam_max + 1, 0);
-    str = std::string(msg);
+    ssize_t cnt = recv(socket_, msg, tam_max, 0);
+    str = std::string(msg, cnt);
     delete msg;
     return cnt;
 }

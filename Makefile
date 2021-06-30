@@ -3,8 +3,6 @@ PROJ_SERVER=server
 
 PROJ_CLIENT=client
 
-PROJ_CLIENT2=client2
-
 RM = rm -rf
 
 # .c files
@@ -35,9 +33,6 @@ $(PROJ_SERVER): ./obj/$(PROJ_SERVER).o $(OBJ)
 $(PROJ_CLIENT): ./obj/$(PROJ_CLIENT).o $(OBJ)
 	$(CC) -o $@ $^
 
-$(PROJ_CLIENT2): ./obj/$(PROJ_CLIENT2).o $(OBJ)
-	$(CC) -o $@ $^
-
 ./objects/%.o: ./source/%.cpp ./include/%.h
 	@ $(CC) -c -o $@ $< $(CC_FLAGS)  
 
@@ -51,5 +46,5 @@ objFolder:
 clean:
 	@ $(RM) ./objects/*.o ./obj/*.o *~
 	@ rmdir objects obj
-	@ $(RM) $(PROJ_SERVER) $(PROJ_CLIENT) $(PROJ_CLIENT2) *~
+	@ $(RM) $(PROJ_SERVER) $(PROJ_CLIENT) *~
 	@ echo 'Objetos e programas removidos'

@@ -4,6 +4,8 @@
 
 unsigned int Tclient::tam_max=1024;
 
+void Tclient::setTAM(const int& t){tam_max=t;}
+
 Tclient::Tclient(const Adress& addr){
 	socket_ = socket(addr.family(), SOCK_STREAM, 0);
 	if (socket_ == -1) {
@@ -15,6 +17,11 @@ Tclient::Tclient(const Adress& addr){
 
 }
 
+Tclient::Tclient(const Tclient& c){this->socket_ = c.socket_;}
+
+Tclient::Tclient(const int& s){socket_ = s;}
+
+int Tclient::sock() const {return socket_;}
 
 ssize_t Tclient::operator<<(const std::string& str){
 		return send(socket_, str.c_str(), str.length(), 0);
@@ -28,6 +35,8 @@ ssize_t Tclient::operator>>(std::string& str){
     delete msg;
     return cnt;
 }
+	
+bool Tclient::operator>(const Tclient& comp) const {return this->socket_ > comp.socket_;}
 
 Tclient& Tclient::operator=(const Tclient& cli){
     this->socket_ = cli.socket_;
@@ -52,6 +61,9 @@ STclient& STclient::operator=(const STclient& cli){
     return *this;
 }
 
+Adress STclient::addr(){return addr_;}
+
+std::string STclient::addr_str(){return addr_.str();}
 
 /*-------------------- Termino da classe STclient --------------------*/
 
@@ -77,6 +89,10 @@ Tserver::Tserver(Adress& addr){
         logexit("listen");
     }
 }
+
+Tserver::Tserver(const Tserver& copia){this->socketS = copia.socketS;}
+
+int Tserver::sockS() const {return socketS;}
 
 
 STclient Tserver::waitConection(){

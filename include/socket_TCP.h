@@ -8,17 +8,6 @@
 //-------------------------------------------------//
 #include "Adress.h"
 
-/* BIBLIOTECAS NAO USADAS NESSE MOMENTO
-#include <sys/time.h> //SELECT funcionalidades
-#include <utility>      // std::pair
-#include <map>
-#include <stdexcept>
-#include <vector>
-#include <unistd.h>
-#include <stdio.h>
-//#include <string> // memset() 
-//#include <string.h>
-*/
 
 class Tclient {
 	int socket_;
@@ -27,14 +16,14 @@ public:
 	//Construtor do socket com endereco
 	Tclient(const Adress&);
 	//Construtor copia
-	Tclient(const Tclient& c){this->socket_ = c.socket_;};
+	Tclient(const Tclient&);
 	//construtor a partir de um int
-	Tclient(const int& s){socket_ = s;};
+	Tclient(const int&);
 	/* define um tamanho maximo de mensagem
 	Tamanho default: 1024*/
-	static void setTAM(const int& t){tam_max=t;};
+	static void setTAM(const int&);
 	//Get socket
-	int sock() const {return socket_;};
+	int sock() const;
 	/* fluxo de saída de string:
 	envia para o socket a string
 	e retorna a qntd de bits enviadas*/
@@ -44,7 +33,7 @@ public:
 	e retorna a qntd de bits recebidas*/
 	ssize_t operator>>(std::string&);
 	//compara o numero do socket
-	bool operator>(const Tclient& comp) const{return this->socket_ > comp.socket_;};
+	bool operator>(const Tclient&) const;
 	//operador igual
 	Tclient& operator=(const Tclient&);
 	//destrutor
@@ -56,8 +45,8 @@ class STclient : public Tclient{
 public:
 	STclient(int, Adress);
 	STclient& operator=(const STclient&);
-	Adress addr(){return addr_;};
-	std::string addr_str(){return addr_.str();};
+	Adress addr();
+	std::string addr_str();
 };
 
 class Tserver {
@@ -66,9 +55,9 @@ public:
 	//Construtor do socket com endereco
 	Tserver(Adress&);
 	//Construtor copia
-	Tserver(const Tserver& copia){this->socketS = copia.socketS;};
+	Tserver(const Tserver&);
 	//Get socket do Server
-	int sockS() const {return socketS;};//Socket Server
+	int sockS() const;//Socket Server
 	// Espera conexao e retorna o cliente conectado
 	STclient waitConection();
 	~Tserver();

@@ -39,11 +39,11 @@ public:
 	// Construtor padrao
 	Adress();
 	//----------- Funcoes GET -----------//
-	uint16_t port()const {return port_;};
-	const struct sockaddr* addr() const {return addr_;};
-	const socklen_t* addrlen() const {return addrlen_;};
+	uint16_t port() const;
+	const struct sockaddr* addr() const;
+	const socklen_t* addrlen() const;
 	//retorna a familia do endereco (IPv4 ou IPv6)
-	int family() const {return family_;};
+	int family() const;
 	//----------- Termino das funcoes GET -----------//
 
 	//retorna o endereco no formato string

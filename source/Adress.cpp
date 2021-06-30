@@ -177,6 +177,15 @@ bool Adress::empty(){
     return emp1 && emp2;
 }
 
+//---------- Funcoes inline ----------//
+const struct sockaddr* Adress::addr() const {return addr_;}
+
+const socklen_t* Adress::addrlen() const {return addrlen_;}
+
+uint16_t Adress::port() const {return port_;}
+
+int Adress::family() const {return family_;}
+//---------- Funcoes inline ----------//
 
 Adress::~Adress(){
     delete addrlen_;

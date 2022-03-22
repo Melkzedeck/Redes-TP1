@@ -1,6 +1,6 @@
 #include <iostream>
-#include "./include/Adress.h"
-#include "./include/socket_TCP.h"
+#include "Adress.h"
+#include "socket_TCP.h"
 
 
 using std::cout;
@@ -11,7 +11,7 @@ using std::cin;
 
 int main(int argc, char **argv) {
 	usage_c(argc, argv);
-	Tclient::setTAM(500);
+	Tclient::setTamMax(500);
 	Adress server(argv[1], argv[2]);
 	Tclient sock(server);//servidor conectado
 	cout<<"connected to " << server.str() << endl; 

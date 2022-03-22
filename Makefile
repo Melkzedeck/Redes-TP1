@@ -1,50 +1,51 @@
-
-PROJ_SERVER=server
-
-PROJ_CLIENT=client
-
-RM = rm -rf
-
-# .c files
-C_SOURCE=$(wildcard ./source/*.cpp)
-
-# .h files
-H_SOURCE=$(wildcard ./include/*.h)
-
-# Object files
-OBJ=$(subst .cpp,.o,$(subst source,objects,$(C_SOURCE)))
-
-# Compiler
 CC=g++
+CFLAGS= -Wall -g
+RM=rm -rf
+CFORMAT=.cpp
+EXE_FORMAT=.out
 
-# Flags for compiler
-CC_FLAGS=-W         \
-         -Wall      \
-         -pedantic
+# diretórios
+MAIN_DIR=./main
+C_DIR=./Redes_components/src/
+H_DIR=./Redes_components/include/
+OBJ_DIR=./obj
 
-#
-# Compilation and linking
-#
-all: objFolder $(PROJ_SERVER) $(PROJ_CLIENT) $(PROJ_CLIENT2)
+# objetos e .cpp
+C_DEPENDENCES=$(wildcard $(C_DIR)*$(CFORMAT))
+OBJ_DEPENDENCES=$(subst $(CFORMAT),.o,$(subst $(C_DIR),$(OBJ_DIR)/, $(C_DEPENDENCES)))
 
-$(PROJ_SERVER): ./obj/$(PROJ_SERVER).o $(OBJ)
-	$(CC) -o servidor $^
+MAIN_CPP=$(wildcard ./$(MAIN_DIR)/*$(CFORMAT))
+MAIN_OUT=$(subst $(CFORMAT),$(EXE_FORMAT),$(subst $(MAIN_DIR)/,, $(MAIN_CPP)))
 
-$(PROJ_CLIENT): ./obj/$(PROJ_CLIENT).o $(OBJ)
-	$(CC) -o cliente $^
 
-./objects/%.o: ./source/%.cpp ./include/%.h
-	@ $(CC) -c -o $@ $< $(CC_FLAGS)  
+all: objs $(MAIN_OUT)
+	@ echo
 
-./obj/%.o: %.cpp $(H_SOURCE)
-	@ $(CC) -c -o $@ $< $(CC_FLAGS)  
 
-objFolder:
-	@ mkdir -p objects
-	@ mkdir -p obj
+objs: make_dir_obj $(OBJ_DEPENDENCES)
+	@ echo Objetos das classes gerados com sucesso
+	@ echo
 
-clean:
-	@ $(RM) ./objects/*.o ./obj/*.o *~
-	@ rmdir objects obj
-	@ $(RM) cliente servidor *~
-	@ echo 'Objetos e programas removidos'
+./%.out: $(MAIN_DIR)/%$(CFORMAT)
+	@ echo compilando $@
+	@ $(CC) $(CFLAGS) $< $(OBJ_DEPENDENCES) -o $@ -I$(H_DIR)
+	@ echo 
+
+$(OBJ_DIR)/%.o: $(C_DIR)%$(CFORMAT)
+	@ echo Gerando $@ 
+	@ $(CC) $(CFLAGS) -c $< -o $@ -I$(H_DIR)
+	@ echo 
+
+make_dir_obj:
+	@ echo Gerando as dependencias do programa...
+	@ [ -d "./obj" ] && echo "'./obj' already exist" || mkdir obj
+	@ echo
+
+cleanObj:
+	@ rm $(OBJ_DIR)/*
+	@ rmdir $(OBJ_DIR)
+	@ echo "objetos excluídos"
+
+clean: cleanObj
+	@ rm  ./*.out
+	@ echo "binários excluídos"

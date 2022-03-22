@@ -6,8 +6,8 @@
 #include <utility>
 #include <math.h>
 
-#include "./include/Adress.h"
-#include "./include/socket_TCP.h"
+#include "Adress.h"
+#include "socket_TCP.h"
 
 using std::cout;
 using std::endl;
@@ -30,6 +30,57 @@ bool operator!=(const local& lc1,const  local& lc2){
 }
 
 //função usada na query: retorna o indice do lugar mais proximo
+unsigned int nearby(const vector<local>& mundo, const local& cord);
+
+bool add(vector<local>& mundo, const local& cord);
+
+bool remove(vector<local>& mundo, const local& cord);
+
+//divide o comando da posicao
+char split(string& msg, string& position, int& x, int& y);
+
+//execucao de comando: do início de uma string ate chegar em um '\n'
+void comando(string& msg, string &resposta, vector<local>& mundo);
+
+
+
+int main(int argc, char **argv) {
+        usage_s(argc, argv);
+    Tclient::setTamMax(500);//seta o maior numero de bytes de envio e de recebimento
+    vector<local> mundo;
+    Adress server(argv[1][1],argv[2]);
+    Tserver sock(server);
+    int num = 0;
+    cout<< "bound to " << server.str()<<", waiting connections" << endl;
+    string msg, resposta;
+    do{ // permanece nesse loop enquanto o servidor não receber a mensagem "kill"
+        Tclient client = sock.waitConection();//depois de conectado retorna uma classe com o descritor
+        cout << "[log] connection from " << client.addr() << endl;
+        string command, position, pct;
+        do{ // permanece nesse loop enquanto o cliente estiver conectado com o servidor
+            num = 0;
+            num = client>>pct;
+            msg += pct;
+            if(num==0)
+                break;
+                        
+            while(msg.find_first_of('\n')!=msg.npos){//permanece nesse loop enquanto a msg contiver um comando
+                comando(msg,resposta,mundo);
+                if(resposta!="kill")
+                    client<<resposta;
+                else
+                    break;
+            }
+            
+        } while(num!=0 && msg!="kill");
+        cout << "[log] close connection of " << client.addr() << endl;
+		client.Close();
+    }while(msg != "kill");
+    cout << "Kill the server" << endl;
+    return 0;
+}
+
+
 unsigned int nearby(const vector<local>& mundo, const local& cord){
 	unsigned int pos=0;
     double distance=10000*2, raio;
@@ -63,7 +114,6 @@ bool remove(vector<local>& mundo, const local& cord){
 	return false;
 }
 
-//divide o comando da posicao
 char split(string& msg, string& position, int& x, int& y){
     string command;
     command = msg.substr(0, msg.find_first_of(' '));
@@ -95,7 +145,6 @@ char split(string& msg, string& position, int& x, int& y){
 }
 
 
-//execucao de comando: do início de uma string ate chegar em um '\n'
 void comando(string& msg, string &resposta, vector<local>& mundo){
     resposta.clear();
     size_t eom = msg.find_first_of('\n');//eom = end of message
@@ -153,40 +202,4 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
         default: cout << "mensagem inesperada" << endl; break; // erro
     }
 
-}
-
-
-int main(int argc, char **argv) {
-        usage_s(argc, argv);
-    STclient::setTAM(500);//seta o maior numero de bytes de envio e de recebimento
-    vector<local> mundo;
-    Adress server(argv[1][1],argv[2]);
-    Tserver sock(server);
-    int num = 0;
-    cout<< "bound to " << server.str()<<", waiting connections" << endl;
-    string msg, resposta;
-    do{ // permanece nesse loop enquanto o servidor não receber a mensagem "kill"
-        STclient client = sock.waitConection();//depois de conectado retorna uma classe com o descritor
-        cout << "[log] connection from " << client.addr_str() << endl;
-        string command, position, pct;
-        do{ // permanece nesse loop enquanto o cliente estiver conectado com o servidor
-            num = 0;
-            num = client>>pct;
-            msg += pct;
-            if(num==0)
-                break;
-                        
-            while(msg.find_first_of('\n')!=msg.npos){//permanece nesse loop enquanto a msg contiver um comando
-                comando(msg,resposta,mundo);
-                if(resposta!="kill")
-                    client<<resposta;
-                else
-                    break;
-            }
-            
-        } while(num!=0 && msg!="kill");
-        cout << "[log] close connection of " << client.addr_str() << endl;
-    }while(msg != "kill");
-    cout << "Kill the server" << endl;
-    return 0;
 }

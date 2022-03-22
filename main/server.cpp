@@ -126,8 +126,12 @@ char split(string& msg, string& position, int& x, int& y){
         position = msg.substr(msg.find_first_of(' ')+1);
         //dividindo a cordenada da ordenada 
         auto space = position.find_first_of(' ');
-        x = stoi(position.substr(0, space));
-        y = stoi(position.substr(space +1));
+		try{
+			x = stoi(position.substr(0, space));
+			y = stoi(position.substr(space +1));
+		} catch(std::invalid_argument& e){
+			position = "NA";
+		}
     }
     //abaixo lanca um char que sera recebido num switch
     if(strcasecmp(command.c_str(),"list")==0)
@@ -153,7 +157,12 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
     msg = msg.substr(eom+1);
     cout << command << endl;
     local pos;
-    switch (split(command, position, pos.x, pos.y)){
+	char aux = split(command, position, pos.x, pos.y);
+	if(position == "NA"){
+		resposta = "comando inválido\n";
+		return;
+	}
+    switch (aux){
         case 'l': //list
     {
         if(mundo.size()==0)
@@ -199,7 +208,11 @@ void comando(string& msg, string &resposta, vector<local>& mundo){
         resposta = (to_string(mundo[i].x) + " " + to_string(mundo[i].y)+"\n");
         break;
     }
-        default: cout << "mensagem inesperada" << endl; break; // erro
+        default:
+		{
+			resposta = "comando invalido\n";
+			break;
+		}
     }
 
 }
